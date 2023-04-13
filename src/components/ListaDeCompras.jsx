@@ -10,10 +10,12 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 export default function ListaDeCompras() {
+  const MySwal = withReactContent(Swal);
   const [lista, setLista] = useState([]);
   const [listaConcluida, setListaConcluida] = useState([]);
   const [item, setItem] = useState("");
-  // const [itemConcluido, setItemConcluido] = useState("");
+  const newItem = document.getElementById("newItem");
+
   const totalItens = useMemo(() => lista.length, [lista]);
   const totalItensConcluidos = useMemo(
     () => listaConcluida.length,
@@ -31,6 +33,13 @@ export default function ListaDeCompras() {
       localStorage.setItem("lista", JSON.stringify(lista)); // se lista estiver vazio ele vai setar vazio
       localStorage.setItem("listaConcluida", JSON.stringify(listaConcluida)); // se lista estiver vazio ele vai setar vazio
     }
+    // newItem.addEventListener("keyup", function(event) {
+    // 	// verifica se a tecla pressionada é a tecla Enter
+    // 	if (event.keyCode === 13) {
+    // 		// chama a função que deve ser executada ao pressionar Enter
+    // 		handleAdd();
+    // 	}
+    // })
   }, [lista, listaConcluida]);
 
   function atualizar() {
@@ -46,28 +55,56 @@ export default function ListaDeCompras() {
     if (item !== "") {
       setLista([...lista, item]);
       setItem("");
+      newItem.focus();
     } else {
       alert("Digite algo para ser inserido!");
     }
   }
-  function handleDelete() {
-    if (confirm("Tem certeza que deseja excluir este item?")) {
-      alert("tem certeza ?");
-      // se confirmado apaga, se não não => try cach
-      localStorage.removeItem("lista"); // se lista estiver vazio ele vai setar vazio
-      setLista([]);
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleAdd();
     }
+  };
+
+  function handleDelete() {
+    MySwal.fire({
+      title: "Tem certeza?",
+      text: "Essa ação não poderá ser revertida",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sim, APAGAR!",
+      cancelButtonText: "Não, MANTER",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("lista"); // se lista estiver vazio ele vai setar vazio
+        setLista([]);
+      }
+    });
   }
 
-  function handleDeleteItem(indice) {
-    if (confirm("Tem certeza que deseja excluir este item?")) {
-      const newListaRemove = lista;
-      newListaRemove.splice(indice, 1);
-      setLista(newListaRemove);
-      localStorage.setItem("lista", JSON.stringify(lista));
-      localStorage.getItem("lista");
-      atualizar();
-    }
+  function handleDeleteItem(item, indice) {
+    MySwal.fire({
+      title: "Tem certeza?",
+      text: `Tem certeza que deseja Deletar ${item.toUpperCase()}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sim, APAGAR!",
+      cancelButtonText: "Não, MANTER",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const newListaRemove = lista;
+        newListaRemove.splice(indice, 1);
+        setLista(newListaRemove);
+        localStorage.setItem("lista", JSON.stringify(lista));
+        localStorage.getItem("lista");
+        atualizar();
+      }
+    });
   }
 
   function handleEditItem(item, indice) {
@@ -77,8 +114,6 @@ export default function ListaDeCompras() {
 
     if (newItem !== "" && newItem !== null && editItem !== -1) {
       newListaEdit[editItem] = newItem;
-      // newListaEdit.push(newItem);
-
       setLista(newListaEdit);
       localStorage.setItem("lista", JSON.stringify(lista));
       localStorage.getItem("lista");
@@ -91,24 +126,53 @@ export default function ListaDeCompras() {
   function handleConcluido(item, indice) {
     let filter = lista;
     let itemRecebido = item;
-    listaConcluida.push(itemRecebido); // não sobreescreve, só adiciona o item
-    // setListaConcluida(...listaConcluida, itemRecebido); // aqui não está adicionando o valor
-    localStorage.setItem("listaConcluida", JSON.stringify(listaConcluida));
-    filter.splice(indice, 1);
-    setLista(filter);
-    localStorage.setItem("lista", JSON.stringify(lista));
-    atualizar();
+    MySwal.fire({
+      title: "Tem certeza?",
+      // text: "Essa ação não poderá ser revertida",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sim, CONCLUIR!",
+      cancelButtonText: "Não, MANTER",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        listaConcluida.push(itemRecebido); // não sobreescreve, só adiciona o item
+        // setListaConcluida(...listaConcluida, itemRecebido); // aqui não está adicionando o valor
+        localStorage.setItem("listaConcluida", JSON.stringify(listaConcluida));
+        filter.splice(indice, 1);
+        setLista(filter);
+        localStorage.setItem("lista", JSON.stringify(lista));
+        atualizar();
+      }
+    });
   }
 
   function handleDeleteItemConcluido(item, indice) {
     let filter = listaConcluida;
-    filter.splice(indice, 1);
-    setListaConcluida(filter);
-    localStorage.setItem("listaConcluida", JSON.stringify(listaConcluida));
-    localStorage.getItem("listaConcluida");
-    localStorage.setItem("lista", JSON.stringify(lista));
-    localStorage.getItem("lista");
-    atualizar();
+
+    MySwal.fire({
+      title: "Tem certeza?",
+      text: `Tem certeza que deseja Deletar ${item.toUpperCase()}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sim, APAGAR!",
+      cancelButtonText: "Não, MANTER",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        filter.splice(indice, 1);
+        setListaConcluida(filter);
+        localStorage.setItem("listaConcluida", JSON.stringify(listaConcluida));
+        localStorage.getItem("listaConcluida");
+        localStorage.setItem("lista", JSON.stringify(lista));
+        localStorage.getItem("lista");
+        atualizar();
+      }
+    });
+
+    // }
   }
 
   return (
@@ -125,6 +189,7 @@ export default function ListaDeCompras() {
                   variant="outlined"
                   value={item}
                   onChange={(e) => setItem(e.target.value)}
+                  onKeyPress={handleKeyPress}
                 />
               </Grid>
               <Grid item>
@@ -149,34 +214,28 @@ export default function ListaDeCompras() {
             </Grid>
           </Grid>
 
-          <Grid item>
-            <h5>Itens listados: {totalItens}</h5>
-            <br />
-          </Grid>
+          <Grid item></Grid>
 
           <Grid item>
+            {lista != "" && (
+              <>
+                <h1>Lista</h1>
+                <h5>Itens listados: {totalItens}</h5>
+                <br />
+              </>
+            )}
             {lista.map((item, indice) => {
               return (
                 <>
                   <div>
                     <ul>
-                      {/* <li key={item}>{item}</li> */}
                       <div>
-                        {/* <article key={item.id} className="list">
-                          <p>{item}</p>
-
-                          <div>
-                            <button>Editar</button>
-                            <button>Concluir</button>
-                            <button className="btn-delete">Deletar</button>
-                          </div>
-                        </article> */}
                         <article key={v4()}>
                           {item}
-                          {/* <div style={{ marginTop: -20, marginLeft: 40 }}> */}
+
                           <AiOutlineDelete
                             size={25}
-                            onClick={() => handleDeleteItem(indice)}
+                            onClick={() => handleDeleteItem(item, indice)}
                             style={{ cursor: "pointer", marginLeft: 10 }}
                           />
 
@@ -191,7 +250,6 @@ export default function ListaDeCompras() {
                             onClick={() => handleConcluido(item, indice)}
                             style={{ cursor: "pointer", marginLeft: 10 }}
                           />
-                          {/* </div> */}
                         </article>
                       </div>
                     </ul>
@@ -201,7 +259,8 @@ export default function ListaDeCompras() {
             })}
             {listaConcluida != "" ? (
               <>
-                <h1>Lista de tarefas concluídas</h1>
+                <br />
+                <h1>Lista Concluídas</h1>
                 <h5>Itens listados: {totalItensConcluidos}</h5>
 
                 {listaConcluida.map((item, indice) => {
@@ -209,7 +268,6 @@ export default function ListaDeCompras() {
                     <>
                       <div>
                         <ul>
-                          {/* <li key={item}>{item}</li> */}
                           <article key={v4()}>
                             {item}
                             <AiOutlineDelete
@@ -227,7 +285,7 @@ export default function ListaDeCompras() {
                 })}
               </>
             ) : (
-              <>{/* <h2>merda bosta</h2> */}</>
+              <></>
             )}
           </Grid>
         </Grid>
