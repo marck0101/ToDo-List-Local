@@ -6,6 +6,9 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { BiEditAlt } from "react-icons/bi";
 import "./style.css";
 import { BsCheckCircle } from "react-icons/bs";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
 export default function ListaDeCompras() {
   const [lista, setLista] = useState([]);
   const [listaConcluida, setListaConcluida] = useState([]);
@@ -24,12 +27,10 @@ export default function ListaDeCompras() {
   }, []);
 
   useEffect(() => {
-    // if ((lista && listaConcluida) != "") {
-    if (lista !== "") {
+    if (lista != "") {
       localStorage.setItem("lista", JSON.stringify(lista)); // se lista estiver vazio ele vai setar vazio
       localStorage.setItem("listaConcluida", JSON.stringify(listaConcluida)); // se lista estiver vazio ele vai setar vazio
     }
-
   }, [lista, listaConcluida]);
 
   function atualizar() {
@@ -50,20 +51,23 @@ export default function ListaDeCompras() {
     }
   }
   function handleDelete() {
-    alert("tem certeza ?");
-    // se confirmado apaga, se não não => try cach
-    localStorage.removeItem("lista"); // se lista estiver vazio ele vai setar vazio
-    setLista([]);
+    if (confirm("Tem certeza que deseja excluir este item?")) {
+      alert("tem certeza ?");
+      // se confirmado apaga, se não não => try cach
+      localStorage.removeItem("lista"); // se lista estiver vazio ele vai setar vazio
+      setLista([]);
+    }
   }
 
   function handleDeleteItem(indice) {
-    alert("tem certeza?");
-    const newListaRemove = lista;
-    newListaRemove.splice(indice, 1);
-    setLista(newListaRemove);
-    localStorage.setItem("lista", JSON.stringify(lista));
-    localStorage.getItem("lista");
-    atualizar();
+    if (confirm("Tem certeza que deseja excluir este item?")) {
+      const newListaRemove = lista;
+      newListaRemove.splice(indice, 1);
+      setLista(newListaRemove);
+      localStorage.setItem("lista", JSON.stringify(lista));
+      localStorage.getItem("lista");
+      atualizar();
+    }
   }
 
   function handleEditItem(item, indice) {
@@ -82,29 +86,29 @@ export default function ListaDeCompras() {
     } else {
       alert("informe o valor que vai substitui-lo");
     }
-    // console.log("lista", lista);
   }
 
   function handleConcluido(item, indice) {
     let filter = lista;
-    console.log(filter);
-    console.log(item, "item");
-    setListaConcluida([...listaConcluida, item]); //aqui já manda para o localStorage
+    let itemRecebido = item;
+    listaConcluida.push(itemRecebido); // não sobreescreve, só adiciona o item
+    // setListaConcluida(...listaConcluida, itemRecebido); // aqui não está adicionando o valor
+    localStorage.setItem("listaConcluida", JSON.stringify(listaConcluida));
     filter.splice(indice, 1);
-    console.log("filter", filter);
     setLista(filter);
-    atualizar()
+    localStorage.setItem("lista", JSON.stringify(lista));
+    atualizar();
   }
 
   function handleDeleteItemConcluido(item, indice) {
-    if (listaConcluida) {
-      let filter = listaConcluida;
-      filter.splice(indice, 1);
-      setListaConcluida(filter);
-      localStorage.setItem("listaConcluida", JSON.stringify(listaConcluida));
-      localStorage.getItem("listaConcluida");
-      atualizar();
-    }
+    let filter = listaConcluida;
+    filter.splice(indice, 1);
+    setListaConcluida(filter);
+    localStorage.setItem("listaConcluida", JSON.stringify(listaConcluida));
+    localStorage.getItem("listaConcluida");
+    localStorage.setItem("lista", JSON.stringify(lista));
+    localStorage.getItem("lista");
+    atualizar();
   }
 
   return (
