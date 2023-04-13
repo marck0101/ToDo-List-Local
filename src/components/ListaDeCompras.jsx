@@ -8,6 +8,7 @@ import "./style.css";
 import { BsCheckCircle } from "react-icons/bs";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { toast } from "react-toastify";
 
 export default function ListaDeCompras() {
   const MySwal = withReactContent(Swal);
@@ -57,7 +58,7 @@ export default function ListaDeCompras() {
       setItem("");
       newItem.focus();
     } else {
-      alert("Digite algo para ser inserido!");
+      toast.error("Digite algo para ser inserido!");
     }
   }
 
@@ -81,6 +82,7 @@ export default function ListaDeCompras() {
       if (result.isConfirmed) {
         localStorage.removeItem("lista"); // se lista estiver vazio ele vai setar vazio
         setLista([]);
+        toast.success("Processo realizado com sucesso!");
       }
     });
   }
@@ -103,6 +105,7 @@ export default function ListaDeCompras() {
         localStorage.setItem("lista", JSON.stringify(lista));
         localStorage.getItem("lista");
         atualizar();
+        toast.success("Processo realizado com sucesso!");
       }
     });
   }
@@ -144,6 +147,7 @@ export default function ListaDeCompras() {
         setLista(filter);
         localStorage.setItem("lista", JSON.stringify(lista));
         atualizar();
+        toast.success("Processo realizado com sucesso!");
       }
     });
   }
@@ -169,10 +173,30 @@ export default function ListaDeCompras() {
         localStorage.setItem("lista", JSON.stringify(lista));
         localStorage.getItem("lista");
         atualizar();
+        toast.success("Processo realizado com sucesso!");
       }
     });
 
     // }
+  }
+
+  function handleDeleteConcluido() {
+    MySwal.fire({
+      title: "Tem certeza?",
+      text: "Essa ação não poderá ser revertida",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sim, APAGAR!",
+      cancelButtonText: "Não, MANTER",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("listaConcluida"); // se lista estiver vazio ele vai setar vazio
+        setListaConcluida([]);
+        toast.success("Processo realizado com sucesso!");
+      }
+    });
   }
 
   return (
@@ -219,9 +243,10 @@ export default function ListaDeCompras() {
           <Grid item>
             {lista != "" && (
               <>
+                <br />
                 <h1>Lista</h1>
                 <h5>Itens listados: {totalItens}</h5>
-                <br />
+                {/* <br /> */}
               </>
             )}
             {lista.map((item, indice) => {
@@ -261,7 +286,21 @@ export default function ListaDeCompras() {
               <>
                 <br />
                 <h1>Lista Concluídas</h1>
-                <h5>Itens listados: {totalItensConcluidos}</h5>
+                <Grid style={{ marginTop: 10, display: "flex" }}>
+                  <h5>Itens listados: {totalItensConcluidos}</h5>
+                  <br />
+                  <Button
+                    onClick={() => handleDeleteConcluido()}
+                    variant="contained"
+                    size="small"
+                    color="error"
+                    style={{ marginLeft: 25, marginTop: -10 }}
+                  >
+                    Deletar Lista
+                  </Button>
+                </Grid>
+
+                {/* <br /> */}
 
                 {listaConcluida.map((item, indice) => {
                   return (
