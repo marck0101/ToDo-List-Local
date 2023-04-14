@@ -9,13 +9,20 @@ import { BsCheckCircle } from "react-icons/bs";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { toast } from "react-toastify";
+import ModalEdit from "./ModalEdit";
 
 export default function ListaDeCompras() {
   const MySwal = withReactContent(Swal);
   const [lista, setLista] = useState([]);
   const [listaConcluida, setListaConcluida] = useState([]);
   const [item, setItem] = useState("");
+  const [indice, setIndice] = useState("");
   const newItem = document.getElementById("newItem");
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const [itemModal, setItemModal] = useState("");
 
   const totalItens = useMemo(() => lista.length, [lista]);
   const totalItensConcluidos = useMemo(
@@ -42,6 +49,18 @@ export default function ListaDeCompras() {
     // 	}
     // })
   }, [lista, listaConcluida]);
+
+  useEffect(() => {
+    setItemModal(itemModal);
+    callback();
+  }, [itemModal]);
+
+  function callback() {
+    console.log("itemModal list", itemModal);
+    let lista = localStorage.getItem("lista");
+    let newLista = JSON.parse(lista);
+    console.log("newLista", newLista);
+  }
 
   function atualizar() {
     const tarefasStorage = localStorage.getItem("lista");
@@ -110,19 +129,30 @@ export default function ListaDeCompras() {
     });
   }
 
-  function handleEditItem(item, indice) {
-    const newListaEdit = lista;
-    let editItem = indice;
-    const newItem = prompt("novo item");
+  // function handleEditItem(item, indice) {
+  //   setOpen(true);
+  //   setOpenModal(item);
+  //   // const newListaEdit = lista;
+  //   // let editItem = indice;
+  //   // const newItem = prompt("novo item");
 
-    if (newItem !== "" && newItem !== null && editItem !== -1) {
-      newListaEdit[editItem] = newItem;
-      setLista(newListaEdit);
-      localStorage.setItem("lista", JSON.stringify(lista));
-      localStorage.getItem("lista");
-      atualizar();
-    } else {
-      alert("informe o valor que vai substitui-lo");
+  //   // if (newItem !== "" && newItem !== null && editItem !== -1) {
+  //   //   newListaEdit[editItem] = newItem;
+  //   //   setLista(newListaEdit);
+  //   //   localStorage.setItem("lista", JSON.stringify(lista));
+  //   //   localStorage.getItem("lista");
+  //   //   atualizar();
+  //   // } else {
+  //   //   alert("informe o valor que vai substitui-lo");
+  //   // }
+  // }
+  function handleEditItem(item, indice) {
+    setOpen(true);
+    setItemModal(item);
+    setIndice(indice);
+    console.log("aitemModal ", itemModal);
+    if (itemModal != "") {
+      console.log("aqui já recebendo ", itemModal);
     }
   }
 
@@ -224,6 +254,14 @@ export default function ListaDeCompras() {
                 >
                   Inserir
                 </Button>
+
+                {/* <Button
+                  onClick={() => handleAdd()}
+                  variant="contained"
+                  size="large"
+                >
+                  Inserir
+                </Button> */}
               </Grid>
               <Grid item>
                 <Button
@@ -249,32 +287,34 @@ export default function ListaDeCompras() {
                 {/* <br /> */}
               </>
             )}
-            {lista.map((item, indice) => {
+            {lista.map((index, indice) => {
               return (
                 <>
                   <div>
                     <ul>
                       <div>
                         <article key={v4()}>
-                          {item}
+                          <div style={{ display: "flex" }}>
+                            {index}
 
-                          <AiOutlineDelete
-                            size={25}
-                            onClick={() => handleDeleteItem(item, indice)}
-                            style={{ cursor: "pointer", marginLeft: 10 }}
-                          />
+                            <AiOutlineDelete
+                              size={25}
+                              onClick={() => handleDeleteItem(index, indice)}
+                              style={{ cursor: "pointer", marginLeft: 10 }}
+                            />
 
-                          <BiEditAlt
-                            size={25}
-                            onClick={() => handleEditItem(item, indice)}
-                            style={{ cursor: "pointer", marginLeft: 10 }}
-                          />
+                            <BiEditAlt
+                              size={25}
+                              onClick={() => handleEditItem(index, indice)}
+                              style={{ cursor: "pointer", marginLeft: 10 }}
+                            />
 
-                          <BsCheckCircle
-                            size={25}
-                            onClick={() => handleConcluido(item, indice)}
-                            style={{ cursor: "pointer", marginLeft: 10 }}
-                          />
+                            <BsCheckCircle
+                              size={25}
+                              onClick={() => handleConcluido(index, indice)}
+                              style={{ cursor: "pointer", marginLeft: 10 }}
+                            />
+                          </div>
                         </article>
                       </div>
                     </ul>
@@ -284,50 +324,60 @@ export default function ListaDeCompras() {
             })}
             {listaConcluida != "" ? (
               <>
-                <br />
-                <h1>Lista Concluídas</h1>
-                <Grid style={{ marginTop: 10, display: "flex" }}>
-                  <h5>Itens listados: {totalItensConcluidos}</h5>
+                <div key={v4()}>
                   <br />
-                  <Button
-                    onClick={() => handleDeleteConcluido()}
-                    variant="contained"
-                    size="small"
-                    color="error"
-                    style={{ marginLeft: 25, marginTop: -10 }}
-                  >
-                    Deletar Lista
-                  </Button>
-                </Grid>
+                  <h1>Lista Concluídas</h1>
+                  <Grid style={{ marginTop: 10, display: "flex" }}>
+                    <h5>Itens listados: {totalItensConcluidos}</h5>
+                    <br />
+                    <Button
+                      onClick={() => handleDeleteConcluido()}
+                      variant="contained"
+                      size="small"
+                      color="error"
+                      style={{ marginLeft: 25, marginTop: -10 }}
+                    >
+                      Deletar Lista
+                    </Button>
+                  </Grid>
 
-                {/* <br /> */}
+                  {/* <br /> */}
 
-                {listaConcluida.map((item, indice) => {
-                  return (
-                    <>
-                      <div>
-                        <ul>
-                          <article key={v4()}>
-                            {item}
-                            <AiOutlineDelete
-                              size={25}
-                              onClick={() =>
-                                handleDeleteItemConcluido(item, indice)
-                              }
-                              style={{ cursor: "pointer", marginLeft: 10 }}
-                            />
-                          </article>
-                        </ul>
-                      </div>
-                    </>
-                  );
-                })}
+                  {listaConcluida.map((item, indice) => {
+                    return (
+                      <>
+                        <div>
+                          <ul>
+                            <article key={v4()}>
+                              {item}
+                              <AiOutlineDelete
+                                size={25}
+                                onClick={() =>
+                                  handleDeleteItemConcluido(item, indice)
+                                }
+                                style={{ cursor: "pointer", marginLeft: 10 }}
+                              />
+                            </article>
+                          </ul>
+                        </div>
+                      </>
+                    );
+                  })}
+                </div>
               </>
             ) : (
               <></>
             )}
           </Grid>
         </Grid>
+        <ModalEdit
+          open={open}
+          handleOpen={handleOpen}
+          handleClose={handleClose}
+          size={25}
+          item={itemModal}
+          setItem={setItemModal}
+        />
       </div>
     </>
   );
